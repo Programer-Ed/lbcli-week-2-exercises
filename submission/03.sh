@@ -7,6 +7,6 @@ bitcoin-cli -regtest createwallet "btrustwallet" > /dev/null 2>&1
 
 ADDRESS=$(bitcoin-cli -regtest -rpcwallet=btrustwallet getnewaddress "" bech32 )
 
-bitcoin-cli -regtest generatetoaddress 101 $ADDRESS
+bitcoin-cli -regtest generatetoaddress 101 $ADDRESS > /dev/null
 
 echo $ADDRESS
