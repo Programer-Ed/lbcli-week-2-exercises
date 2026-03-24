@@ -168,7 +168,7 @@ PAYMENT_ADDRESS="2MvLcssW49n9atmksjwg2ZCMsEMsoj3pzUP"
 CHANGE_ADDRESS="bcrt1qg09ftw43jvlhj4wlwwhkxccjzmda3kdm4y83ht"
 
 # STUDENT TASK: Create a proper input JSON for createrawtransaction
-TX_INPUTS='[{"txid":"'TXID'","vout":0,"sequence":4294967295}]'
+TX_INPUTS='[{"txid":"'$TXID'","vout":0,"sequence":1}]'
 check_cmd "Input JSON creation" "TX_INPUTS" "$TX_INPUTS"
 
 # Verify RBF is enabled in the input structure
@@ -184,11 +184,11 @@ CHANGE_AMOUNT=$((UTXO_VALUE - PAYMENT_AMOUNT - FEE_SATS))
 check_cmd "Change calculation" "CHANGE_AMOUNT" "$CHANGE_AMOUNT"
 
 # Convert amounts to BTC for createrawtransaction
-PAYMENT_BTC=$(echo "PAYMENT_AMOUNT / 100000000" | bc-l)
-CHANGE_BTC=$(echo "CHANGE_AMOUNT / 100000000" | bc-l)
+PAYMENT_BTC=$(printf "%.8f" $(echo "$PAYMENT_AMOUNT / 100000000" | bc -l))
+CHANGE_BTC=$(printf "%.8f" $(echo "$CHANGE_AMOUNT / 100000000" | bc -l))
 
 # STUDENT TASK: Create the outputs JSON structure
-TX_OUTPUTS='{"$PAYMENT_ADDRESS":'$PAYMENT_BTC',"'CHANGE_ADDRESS'":'$CHANGE_BTC'}'
+TX_OUTPUTS='{"'$PAYMENT_ADDRESS'":'$PAYMENT_BTC',"'$CHANGE_ADDRESS'":'$CHANGE_BTC'}'
 check_cmd "Output JSON creation" "TX_OUTPUTS" "$TX_OUTPUTS"
 
 # STUDENT TASK: Create the raw transaction
@@ -215,10 +215,10 @@ check_cmd "Transaction decoding" "DECODED_TX" "$DECODED_TX"
 
 # STUDENT TASK: Extract and verify the key components from the decoded transaction
 # WRITE YOUR SOLUTION BELOW:
-VERIFY_RBF=$(echo "$DECODED_TX" | jq '.vin[0].sequence <4294967295')
+VERIFY_RBF=$(echo "$DECODED_TX" | jq '.vin[0].sequence < 4294967294')
 check_cmd "RBF verification" "VERIFY_RBF" "$VERIFY_RBF"
 
-VERIFY_PAYMENT=$(echo "DECODED_TX" | jq -r '.vout[0].value')
+VERIFY_PAYMENT=$(echo "$DECODED_TX" | jq -r '.vout[0].value')
 check_cmd "Payment verification" "VERIFY_PAYMENT" "$VERIFY_PAYMENT"
 
 VERIFY_CHANGE=$(echo "$DECODED_TX" | jq -r '.vout[1].value')
@@ -315,7 +315,7 @@ CHILD_SEND_AMOUNT=$((CHANGE_AMOUNT - CHILD_FEE_SATS))
 check_cmd "Child amount calculation" "CHILD_SEND_AMOUNT" "$CHILD_SEND_AMOUNT"
 
 # Convert to BTC
-CHILD_SEND_BTC=$(echo "$CHILD_SEND_AMOUNT / 100000000" | bc -l)
+CHILD_SEND_BTC=$(printf "%.8f" $(echo "$CHILD_SEND_AMOUNT / 100000000" | bc -l))
 
 # STUDENT TASK: Create the outputs JSON structure
 CHILD_OUTPUTS='{"'$CHILD_RECIPIENT'":'$CHILD_SEND_BTC'}'
@@ -366,7 +366,7 @@ TIMELOCK_AMOUNT=$((SECONDARY_OUTPUT_VALUE - 1000))
 check_cmd "Timelock amount calculation" "TIMELOCK_AMOUNT" "$TIMELOCK_AMOUNT"
 
 # Convert to BTC
-TIMELOCK_BTC=$(echo "$TIMELOCK_AMOUNT / 100000000" | bc -l)
+TIMELOCK_BTC=$(printf "%.8f" $(echo "$TIMELOCK_AMOUNT / 100000000" | bc -l))
 
 # STUDENT TASK: Create the outputs JSON structure
 TIMELOCK_OUTPUTS='{"'$TIMELOCK_ADDRESS'":'$TIMELOCK_BTC'}'
